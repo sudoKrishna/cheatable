@@ -17,4 +17,32 @@ model User {
   passwordHash String
   createdAt DateTime @default(now())
   updateAt DateTime @updatedAt
+
+  projects  Project[]
+}
+model Project {
+  id  String @id @default(cuid())
+  name String 
+  ownerId String
+  createAt  DateTime @default(now())
+  owner User @relation(fields: [ownerId], references: [id] , onDelete: Cascade)
+  message Message[]
+
+  @@index([ownerId])
+}
+enum Role {
+  user 
+  assistant
+}
+
+model Message {
+  id String @id @default(cuid())
+  projectId String
+  role Role
+  content String
+  createdAt DateTime @default(now())
+
+  project Project @relation(fields: [projectId] , references: [id], onDelete: Cascade)
+
+  @@index([projectId])
 }
