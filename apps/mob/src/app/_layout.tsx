@@ -1,15 +1,49 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
-import { useColorScheme } from 'react-native';
+import { useEffect, useState } from "react";
+import { Stack, useRouter, useSegments } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { ActivityIndicator, View } from "react-native";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+import { getToken } from "@/api/tokenStorage";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import AppTabs from '@/components/app-tabs';
+export default function RootLayout() {
+  const router = useRouter();
+  const segments = useSegments();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
+  useEffect(() => {
+    async function checkAuth() {
+      const token = await getToken();
+      const inAuthGroup = segments[0] === "(auth)";
+
+      if (!token && !inAuthGroup) {
+        router.replace("/(auth)/login");
+      }
+
+      setIsCheckingAuth(false);
+    }
+
+    checkAuth();
+  }, [segments]);
+
+  if (isCheckingAuth) {
+    return (
+      <SafeAreaProvider>
+        <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+          <ActivityIndicator size="large" color="#2563eb" />
+        </View>
+      </SafeAreaProvider>
+    );
+  }
+
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      <AppTabs />
-    </ThemeProvider>
+    <SafeAreaProvider>
+      <StatusBar style="auto" />
+      <Stack initialRouteName="index">
+        <Stack.Screen name="index" options={{ title: "Projects" }} />
+        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        <Stack.Screen name="chat/[projectId]" />
+        <Stack.Screen name="preview/[projectId]" options={{ title: "Preview" }} />
+      </Stack>
+    </SafeAreaProvider>
   );
 }
