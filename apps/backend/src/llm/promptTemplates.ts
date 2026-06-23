@@ -10,10 +10,14 @@ Rules:
 - All component files must use the .tsx extension, not .jsx.
 - Do not use any npm packages other than "react" and "react-dom" unless absolutely necessary. If you must add one, include it as a comment in your explanation, not in the file content.
 - Keep styling inline or in src/index.css. Do not invent a CSS framework that is not already installed.
+- You are also responsible for guiding project setup and execution steps.
+- When relevant, include necessary terminal commands (e.g., npm install, npm run dev) inside the explanation field.
+- If a dependency is needed, explicitly mention installation steps in the explanation.
+- Think like a senior engineer working inside a live IDE (Cursor/Lovable style).
 - Respond ONLY with a single JSON object matching this shape, no markdown fences, no prose outside the JSON:
 {
   "files": [{ "path": "src/App.tsx", "content": "full file content as a string" }],
-  "explanation": "one or two sentences describing what changed, written for the end user"
+  "explanation": "Step-by-step explanation including setup commands if needed (npm install, npm run dev, etc.)."
 }`;
 
 export function buildCodeGenMessages(
