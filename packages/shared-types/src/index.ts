@@ -48,19 +48,27 @@ export interface SandboxRunResult {
   sandboxId: string;
 }
 
-export type StreamEventType =
-  | "status"
-  | "file_written"
-  | "preview_ready"
-  | "error"
-  | "done";
+// export type StreamEventType =
+//   | "status"
+//   | "file_written"
+//   | "preview_ready"
+//   | "error"
+//   | "done"
+//   | "message_chunk"
+//   | "token"
+//   | "assisant_delta"
 
-export interface StreamEvent {
-  type: StreamEventType;
-  message?: string;
-  path?: string;
-  previewUrl?: string;
-}
+export type StreamEvent =
+  | { type: "status"; message?: string }
+  | { type: "file_written"; path: string }
+  | { type: "preview_ready"; previewUrl: string }
+  | { type: "error"; message?: string }
+  | { type: "done" }
+  | { type: "message_chunk"; content: string }
+  | { type: "token"; content: string }
+  | { type: "assistant_delta"; content: string };
+
+
 
 export interface CreateProjectRequest {
   name: string;

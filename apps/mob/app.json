@@ -7,6 +7,9 @@
     "icon": "./assets/images/icon.png",
     "scheme": "mob",
     "userInterfaceStyle": "automatic",
+    "extra" : {
+      "apiBaseUrl": "http://192.168.0.150:4000"
+    },
     "ios": {
       "icon": "./assets/expo.icon"
     },
@@ -34,7 +37,8 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

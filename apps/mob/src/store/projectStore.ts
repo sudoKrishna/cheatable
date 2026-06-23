@@ -9,6 +9,7 @@ interface ProjectState {
   setActiveProject: (project: Project | null) => void;
   setMessages: (messages: Message[]) => void;
   appendMessage: (message: Message) => void;
+  updateMessage : (id :string , content : string) => void;
   setPreviewUrl: (previewUrl: string) => void;
   setGenerating: (isGenerating: boolean) => void;
   setStatusText: (statusText: string | null) => void;
@@ -27,13 +28,21 @@ export const useProjectStore = create<ProjectState>((set) => ({
   appendMessage: (message) =>
     set((state) => ({ messages: [...state.messages, message] })),
 
-  setPreviewUrl: (previewUrl) =>
+  updateMessage: (id, content) =>
+    set((state) => ({
+      messages: state.messages.map((m) =>
+        m.id === id
+          ? { ...m, content: m.content + content }
+          : m
+      )
+    })),
+    setPreviewUrl: (previewUrl) =>
     set((state) => ({
       activeProject: state.activeProject
         ? { ...state.activeProject, previewUrl }
         : state.activeProject
     })),
-
+    
   setGenerating: (isGenerating) => set({ isGenerating }),
 
   setStatusText: (statusText) => set({ statusText })

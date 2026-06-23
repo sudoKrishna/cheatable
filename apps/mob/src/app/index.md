@@ -1,9 +1,8 @@
-import { useCallback, useEffect, useState, useRef } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
   StyleSheet,
-  Animated,
   Text,
   TextInput,
   TouchableOpacity,
@@ -11,12 +10,7 @@ import {
 } from "react-native";
 import { useRouter } from "expo-router";
 import { fetchProjects, createProject } from "@/api/projects";
-import { LinearGradient } from "expo-linear-gradient";
 import type { Project } from "@/types";
-import { Sidebar } from "@/components/Sidebar";
-
-const MIN_INPUT_HEIGHT = 64;
-const MAX_INPUT_HEIGHT = 160;
 
 export default function ProjectListScreen() {
   const router = useRouter();
@@ -25,35 +19,6 @@ export default function ProjectListScreen() {
   const [newProjectName, setNewProjectName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [index, setIndex] = useState(0);
-  const [inputHeight, setInputHeight] = useState(MIN_INPUT_HEIGHT);
-  const fadeAnim = useRef(new Animated.Value(1)).current;
-
-  const placeholderAnim = [
-    "Create a todo",
-    "create a backend",
-    "build a portfolio",
-  ];
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      Animated.sequence([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: true,
-        }),
-      ]).start();
-      setIndex((prev) => (prev + 1) % placeholderAnim.length);
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -88,7 +53,6 @@ export default function ProjectListScreen() {
     try {
       const project = await createProject(name);
       setNewProjectName("");
-      setInputHeight(MIN_INPUT_HEIGHT);
       goToChat(project.id, project.name);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create project");
@@ -102,56 +66,31 @@ export default function ProjectListScreen() {
   }
 
   return (
-    <LinearGradient
-      colors={[
-        "#ffffff",
-        "#dbeafe",
-        "#60a5fa",
-        "#ec4899",
-        "#ef4444",
-        "#f97316"
-      ]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={styles.container}
-    >
-      <Sidebar projects={projects} openProject={openProject} />
-
+    <View style={styles.container}>
       <View style={styles.createRow}>
-        <View style={[styles.inputWrapper, { height: inputHeight }]}>
-          <TextInput
-            style={[styles.input, { height: inputHeight }]}
-            value={newProjectName}
-            onChangeText={setNewProjectName}
-            placeholder={`cheatable ${placeholderAnim[index]}`}
-            placeholderTextColor="#9999a3"
-            multiline
-            textAlignVertical="top"
-            onContentSizeChange={(e) => {
-              const next = Math.min(
-                MAX_INPUT_HEIGHT,
-                Math.max(MIN_INPUT_HEIGHT, e.nativeEvent.contentSize.height + 24)
-              );
-              setInputHeight(next);
-            }}
-          />
-          <TouchableOpacity
-            style={[styles.inlineButton, isCreating && styles.inlineButtonDisabled]}
-            onPress={handleCreate}
-            disabled={isCreating}
-          >
-            {isCreating ? (
-              <ActivityIndicator color="#ffffff" size="small" />
-            ) : (
-              <Text style={styles.createButtonText}>↑</Text>
-            )}
-          </TouchableOpacity>
-        </View>
+        <TextInput
+          style={styles.input}
+          value={newProjectName}
+          onChangeText={setNewProjectName}
+          placeholder="New project name"
+          placeholderTextColor="#9999a3"
+        />
+        <TouchableOpacity
+          style={[styles.createButton, isCreating && styles.createButtonDisabled]}
+          onPress={handleCreate}
+          disabled={isCreating}
+        >
+          {isCreating ? (
+            <ActivityIndicator color="#ffffff" size="small" />
+          ) : (
+            <Text style={styles.createButtonText}>Create</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
       {error && <Text style={styles.error}>{error}</Text>}
 
-      {/* {isLoading ? (
+      {isLoading ? (
         <ActivityIndicator style={styles.loader} size="large" color="#2563eb" />
       ) : (
         <FlatList
@@ -170,8 +109,8 @@ export default function ProjectListScreen() {
             <Text style={styles.emptyText}>No projects yet. Create your first one above.</Text>
           }
         />
-      )} */}
-    </LinearGradient>
+      )}
+    </View>
   );
 }
 
@@ -184,38 +123,17 @@ const styles = StyleSheet.create({
   createRow: {
     flexDirection: "row",
     paddingHorizontal: 16,
-    marginTop: 340,
     marginBottom: 12,
     gap: 8
   },
-  inputWrapper: {
-    position: "relative",
-    flex: 1,
-  },
   input: {
-    color: "#18181b",
     flex: 1,
-    borderRadius: 16,
-    backgroundColor: "#ffffff",
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    paddingRight: 56,
-    paddingBottom: 16,
-    fontSize: 16,
-  },
-  inlineButton: {
-    position: "absolute",
-    right: 10,
-    bottom: 10,
-    backgroundColor: "#989898",
-    borderRadius: 300,
-    width: 36,
-    height: 36,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  inlineButtonDisabled: {
-    backgroundColor: "#93c5fd",
+    borderRadius: 12,
+    backgroundColor: "#efefca",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    fontSize: 15,
+    color: "#18181b"
   },
   createButton: {
     backgroundColor: "#2563eb",

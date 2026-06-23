@@ -17,6 +17,8 @@ export function useChatStream(projectId: string) {
       setGenerating(true);
       setStatusText("Sending prompt");
 
+      const store = useProjectStore.getState();
+
       const optimisticUserMessage: Message = {
         id: `temp-${Date.now()}`,
         projectId,
@@ -25,6 +27,14 @@ export function useChatStream(projectId: string) {
         createdAt: new Date().toISOString()
       };
       appendMessage(optimisticUserMessage);
+      const assistantId = `temp-ai-${Date.now()}`;
+      appendMessage({
+        id : assistantId,
+        projectId,
+        role : "assistant",
+        content : "" ,
+        createdAt : new Date().toISOString()
+      })
 
       try {
         await streamMessage(projectId, content, (event) => {
@@ -40,6 +50,11 @@ export function useChatStream(projectId: string) {
                 setPreviewUrl(event.previewUrl);
               }
               break;
+              case "message_chunk" : 
+              case "token" :
+              case "assistant_delta" : 
+                 store.updateMessage(assistantId , event.content ?? "");
+                 break
             case "error":
               setError(event.message ?? "Something went wrong");
               break;

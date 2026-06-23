@@ -1,21 +1,37 @@
-import {StyleSheet , Text ,View} from "react-native";
+import {StyleSheet , Text ,View , TouchableOpacity} from "react-native";
 import type {Message} from "../types";
+import * as Clipboard from "expo-clipboard";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+
 
 interface ChatBubbleProps {
     message : Message ;
 }
 
+const copyMessage = async (text: string) => {
+  await Clipboard.setStringAsync(text);
+};
+
 export function ChatBubble({message} : ChatBubbleProps ){
     const isUser = message.role === "user";
 
     return (
-        <View style={[styles.row, isUser ? styles.rowRight : styles.rowLeft]}>
-        <View  style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
-         <Text style={[isUser ? styles.userText : styles.assistantText]}>
-            {message.content}
-         </Text>
-        </View>
-        </View>
+        <View style={[styles.messageContainer, isUser ? styles.rowRight : styles.rowLeft]}>
+  
+  <View style={[styles.bubble, isUser ? styles.userBubble : styles.assistantBubble]}>
+    <Text style={isUser ? styles.userText : styles.assistantText}>
+      {message.content}
+    </Text>
+  </View>
+
+  <TouchableOpacity
+    style={styles.copyButton}
+    onPress={() => copyMessage(message.content)}
+  >
+    <MaterialCommunityIcons name="content-copy" size={18} color="#666" />
+  </TouchableOpacity>
+
+</View>
     );
 }
 
@@ -25,6 +41,12 @@ const styles = StyleSheet.create({
         paddingHorizontal : 12,
         marginVertical : 4
     },
+    messageContainer: {
+  width: "100%",
+  paddingHorizontal: 12,
+  marginVertical: 4,
+},
+
     rowLeft : {
         alignItems : "flex-start"
     },
@@ -38,15 +60,23 @@ const styles = StyleSheet.create({
         paddingHorizontal : 14
     },
     userBubble : {
-        backgroundColor : "#2563eb"
+        borderTopLeftRadius: 16,
+        borderTopRightRadius : 16,
+        borderBottomLeftRadius : 16,
+        borderBottomRightRadius : 0,
+        backgroundColor : "#f8f6f6"
     },
     assistantBubble : {
         backgroundColor : "#f1f1f4"
     },
     userText: {
-    color: "#ffffff",
+    color: "#000000",
     fontSize: 15,
     lineHeight: 20
+  },
+  copyButton : {
+    alignSelf : "flex-end",
+    marginTop : 6,
   },
   assistantText: {
     color: "#18181b",
