@@ -67,7 +67,11 @@ const styles = StyleSheet.create({
         backgroundColor : "#f8f6f6"
     },
     assistantBubble : {
-        backgroundColor : "#f1f1f4"
+        backgroundColor : "#f1f1f4",
+        borderTopLeftRadius : 16,
+        borderTopRightRadius : 16,
+        borderBottomLeftRadius : 0,
+        borderBottomRightRadius :16
     },
     userText: {
     color: "#000000",

@@ -59,9 +59,17 @@ messagesRouter.post("/:projectId", async (req, res) => {
     const sandboxResult = await ensureSandboxRunning(project.sandboxId, existingFiles);
     await updateSandboxInfo(projectId, sandboxResult.sandboxId, sandboxResult.previewUrl, "running");
 
-    sendEvent(res, { type: "status", message: "Generating code" });
+    sendEvent(res, { type: "status", message: "Generating response" });
     const history = await listMessages(projectId);
-    const generation = await generateCode(history, existingFiles, parsed.data.content);
+
+    const generation = await generateCode(
+      history,
+      existingFiles,
+      parsed.data.content,
+      (chunk) => {
+        sendEvent(res, { type: "assistant_delta", content: chunk });
+      }
+    );
 
     sendEvent(res, { type: "status", message: "Applying changes" });
     await persistAndApplyFiles(projectId, sandboxResult.sandboxId, generation.files);

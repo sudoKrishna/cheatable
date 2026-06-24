@@ -1,14 +1,13 @@
 import { z } from "zod";
-import type { GenerateCodeResponse } from "shared-types";
+import type { GeneratedFile } from "shared-types";
 
 const FileSchema = z.object({
   path: z.string().min(1),
   content: z.string()
 });
 
-const ResponseSchema = z.object({
-  files: z.array(FileSchema).min(1),
-  explanation: z.string().default("")
+const FilesResponseSchema = z.object({
+  files: z.array(FileSchema).min(1)
 });
 
 const ALLOWED_PREFIXES = ["src/", "index.html", "package.json", "vite.config.js"];
@@ -20,7 +19,7 @@ function isPathAllowed(path: string): boolean {
 
 export class InvalidModelResponseError extends Error {}
 
-export function parseCodeGenResponse(raw: string): GenerateCodeResponse {
+export function parseFilesResponse(raw: string): GeneratedFile[] {
   let json: unknown;
   try {
     json = JSON.parse(raw);
@@ -28,7 +27,7 @@ export function parseCodeGenResponse(raw: string): GenerateCodeResponse {
     throw new InvalidModelResponseError("Model response was not valid JSON");
   }
 
-  const parsed = ResponseSchema.safeParse(json);
+  const parsed = FilesResponseSchema.safeParse(json);
   if (!parsed.success) {
     throw new InvalidModelResponseError(
       `Model response did not match expected shape: ${parsed.error.message}`
@@ -42,5 +41,5 @@ export function parseCodeGenResponse(raw: string): GenerateCodeResponse {
     );
   }
 
-  return parsed.data;
+  return parsed.data.files;
 }
